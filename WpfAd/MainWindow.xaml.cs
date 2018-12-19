@@ -206,12 +206,19 @@ namespace WpfAd
         }
         private async Task NextImg()
         {
-            Ad ad = await GetAdByIndex(this.lblDebug);
-            if (ad != null && File.Exists(ad.img_path))
+            try
             {
-                imgAd.Source = new BitmapImage(new Uri(ad.img_path, UriKind.Absolute));
+                Ad ad = await GetAdByIndex(this.lblDebug);
+                if (ad != null && File.Exists(ad.img_path))
+                {
+                    imgAd.Source = new BitmapImage(new Uri(ad.img_path, UriKind.Absolute));
+                }
+            }
+            catch (Exception ex) {
+                log.Error("NextImg error:", ex);
             }
             Stop30Second();
+            
         }
 
         private void ImgAd_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)

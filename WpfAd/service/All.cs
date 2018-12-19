@@ -67,7 +67,7 @@ namespace WpfAd.service
                     ad.putoff_time = DateTime.Parse(jToken["putoff_time"].ToString());
                     ad.show_type = int.Parse(jToken["show_type"].ToString());
                     ad.img_path = Config.adImgRoot + "\\" + Ad.GetImgName(ad.image_url);
-                    ad.sub_img_path = Config.adImgRoot + "\\" + Ad.GetImgName(ad.sub_image_url);
+                    
                     Ad oldad = AdDao.GetAdById(ad.advertisement_id);
                     if (oldad == null) //数据库中不存在
                     {
@@ -75,6 +75,7 @@ namespace WpfAd.service
                         url1 = HttpUtil.DownloadImg(ad.image_url, ad.img_path);
                         if ((ad.show_type == 2 || ad.show_type == 3) && String.IsNullOrEmpty(ad.sub_image_url) == false)
                         {
+                            ad.sub_img_path = Config.adImgRoot + "\\" + Ad.GetImgName(ad.sub_image_url);
                             url2 = HttpUtil.DownloadImg(ad.sub_image_url, ad.sub_img_path);
                         }
                         if (url1 && url2)
@@ -215,7 +216,7 @@ namespace WpfAd.service
         /// <param name="action_type"></param>
         public async static void SubmitData(long advertisement_id, string name, string tel, string area_code)
         {
-            string url = String.Format(Config.logAdDataUrl + "?advertisement_id={0}&name={1}&telephone={2}&area_code={3}", advertisement_id, name, tel, area_code);
+            string url = String.Format(Config.submitUrl + "?advertisement_id={0}&name={1}&telephone={2}&area_code={3}", advertisement_id, name, tel, area_code);
             await HttpUtil.DownloadString(url);
         }
     }
