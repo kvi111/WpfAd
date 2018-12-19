@@ -67,7 +67,7 @@ namespace WpfAd.service
                     ad.putoff_time = DateTime.Parse(jToken["putoff_time"].ToString());
                     ad.show_type = int.Parse(jToken["show_type"].ToString());
                     ad.img_path = Config.adImgRoot + "\\" + Ad.GetImgName(ad.image_url);
-                    
+
                     Ad oldad = AdDao.GetAdById(ad.advertisement_id);
                     if (oldad == null) //数据库中不存在
                     {
@@ -96,14 +96,16 @@ namespace WpfAd.service
                             if (fileInfo.Exists == false || fileInfo.Length <= 0)
                             {
                                 url1 = HttpUtil.DownloadImg(ad.image_url, ad.img_path);
-                                if ((ad.show_type == 2 || ad.show_type == 3) && String.IsNullOrEmpty(ad.sub_image_url) == false)
-                                {
-                                    url2 = HttpUtil.DownloadImg(ad.sub_image_url, ad.sub_img_path);
-                                }
+                            }
+                            FileInfo subfileInfo = new FileInfo(ad.sub_image_url);
+                            if ((ad.show_type == 2 || ad.show_type == 3) && String.IsNullOrEmpty(ad.sub_image_url) == false && (subfileInfo.Exists == false || subfileInfo.Length <= 0))
+                            {
+                                url2 = HttpUtil.DownloadImg(ad.sub_image_url, ad.sub_img_path);
                             }
                             if (url1 && url2)
                             {
                                 ad.id = oldad.id;
+                                ad.sub_image_url = oldad.sub_image_url;
                                 AdDao.UpdateAd(ad);
                                 listAD.Add(ad);
                             }
