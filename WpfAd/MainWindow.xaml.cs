@@ -42,7 +42,8 @@ namespace WpfAd
             timer.Tick += new EventHandler(Timer_Tick);
 
             mainWindow = this;
-            var ls = DmDao.GetDms();
+            var ls = AdDao.GetAds();
+            var ls1 = DmDao.GetDms();
         }
 
         private async void Window_Loaded(object sender, RoutedEventArgs e)
