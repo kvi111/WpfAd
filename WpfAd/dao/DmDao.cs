@@ -80,7 +80,7 @@ namespace WpfAd.dao
             {
                 using (var db = new SQLiteDb())
                 {
-                    return db.Dms.Where(x => x.puton_time <= DateTime.Now && DateTime.Now <= x.putoff_time).OrderByDescending(x => x.advertisement_id).ToList();
+                    return db.Dms.ToList().Where(x => x.puton_time <= DateTime.Now && DateTime.Now <= x.putoff_time).OrderBy(x => x.advertisement_id).ToList();
                 }
             }
             catch (Exception ex)

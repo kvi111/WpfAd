@@ -82,7 +82,7 @@ namespace WpfAd.dao
             {
                 using (var db = new SQLiteDb())
                 {
-                    var ads = db.Ads.Where(x => x.puton_time <= DateTime.Now && DateTime.Now <= x.putoff_time).OrderByDescending(x => x.advertisement_id).ToList();
+                    var ads = db.Ads.Where(x => x.puton_time <= DateTime.Now && DateTime.Now <= x.putoff_time).OrderBy(x => x.advertisement_id).ToList();
                     return ads;
                 }
             }
