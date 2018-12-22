@@ -113,7 +113,7 @@ namespace WpfAd.service
                             if (url1 && url2)
                             {
                                 ad.id = oldad.id;
-                                ad.sub_image_url = oldad.sub_image_url;
+                                //ad.sub_image_url = oldad.sub_image_url;
                                 AdDao.UpdateAd(ad);
                                 listAD.Add(ad);
                             }
