@@ -78,6 +78,10 @@ namespace WpfAd.service
                             ad.sub_img_path = Config.adImgRoot + "\\" + Ad.GetImgName(ad.sub_image_url);
                             url2 = HttpUtil.DownloadImg(ad.sub_image_url, ad.sub_img_path);
                         }
+                        else
+                        {
+                            ad.sub_img_path = "";
+                        }
                         if (url1 && url2)
                         {
                             AdDao.InsertAd(ad);
@@ -97,10 +101,14 @@ namespace WpfAd.service
                             {
                                 url1 = HttpUtil.DownloadImg(ad.image_url, ad.img_path);
                             }
-                            FileInfo subfileInfo = new FileInfo(ad.sub_image_url);
-                            if ((ad.show_type == 2 || ad.show_type == 3) && String.IsNullOrEmpty(ad.sub_image_url) == false && (subfileInfo.Exists == false || subfileInfo.Length <= 0))
+                            if ((ad.show_type == 2 || ad.show_type == 3) && String.IsNullOrEmpty(ad.sub_image_url) == false)
                             {
+                                ad.sub_img_path = Config.adImgRoot + "\\" + Ad.GetImgName(ad.sub_image_url);
                                 url2 = HttpUtil.DownloadImg(ad.sub_image_url, ad.sub_img_path);
+                            }
+                            else
+                            {
+                                ad.sub_img_path = "";
                             }
                             if (url1 && url2)
                             {
