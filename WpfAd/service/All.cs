@@ -68,39 +68,14 @@ namespace WpfAd.service
                     ad.show_type = int.Parse(jToken["show_type"].ToString());
                     ad.img_path = Config.adImgRoot + "\\" + Ad.GetImgName(ad.image_url);
 
-                    Ad oldad = AdDao.GetAdById(ad.advertisement_id);
-                    if (oldad == null) //数据库中不存在
+                    DateTime dt = DateTime.Now;
+                    if (ad.puton_time <= dt && dt <= ad.putoff_time) //在上线时间范围内
                     {
-                        bool url1 = true, url2 = true;
-                        url1 = HttpUtil.DownloadImg(ad.image_url, ad.img_path);
-                        if ((ad.show_type == 2 || ad.show_type == 3) && String.IsNullOrEmpty(ad.sub_image_url) == false)
+                        Ad oldad = AdDao.GetAdById(ad.advertisement_id);
+                        if (oldad == null) //数据库中不存在
                         {
-                            ad.sub_img_path = Config.adImgRoot + "\\" + Ad.GetImgName(ad.sub_image_url);
-                            url2 = HttpUtil.DownloadImg(ad.sub_image_url, ad.sub_img_path);
-                        }
-                        else
-                        {
-                            ad.sub_img_path = "";
-                        }
-                        if (url1 && url2)
-                        {
-                            AdDao.InsertAd(ad);
-                            listAD.Add(ad);
-                        }
-                    }
-                    else //数据库中存在
-                    {
-                        if (oldad.date_modified != ad.date_modified)//需要更新
-                        {
-                            FileInfo fileInfo = new FileInfo(ad.img_path);
-                            //if (fileInfo.Directory.Exists == false) {
-                            //    fileInfo.Directory.Create();
-                            //}
                             bool url1 = true, url2 = true;
-                            if (fileInfo.Exists == false || fileInfo.Length <= 0)
-                            {
-                                url1 = HttpUtil.DownloadImg(ad.image_url, ad.img_path);
-                            }
+                            url1 = HttpUtil.DownloadImg(ad.image_url, ad.img_path);
                             if ((ad.show_type == 2 || ad.show_type == 3) && String.IsNullOrEmpty(ad.sub_image_url) == false)
                             {
                                 ad.sub_img_path = Config.adImgRoot + "\\" + Ad.GetImgName(ad.sub_image_url);
@@ -112,10 +87,39 @@ namespace WpfAd.service
                             }
                             if (url1 && url2)
                             {
-                                ad.id = oldad.id;
-                                //ad.sub_image_url = oldad.sub_image_url;
-                                AdDao.UpdateAd(ad);
+                                AdDao.InsertAd(ad);
                                 listAD.Add(ad);
+                            }
+                        }
+                        else //数据库中存在
+                        {
+                            if (oldad.date_modified != ad.date_modified)//需要更新
+                            {
+                                FileInfo fileInfo = new FileInfo(ad.img_path);
+                                //if (fileInfo.Directory.Exists == false) {
+                                //    fileInfo.Directory.Create();
+                                //}
+                                bool url1 = true, url2 = true;
+                                if (fileInfo.Exists == false || fileInfo.Length <= 0)
+                                {
+                                    url1 = HttpUtil.DownloadImg(ad.image_url, ad.img_path);
+                                }
+                                if ((ad.show_type == 2 || ad.show_type == 3) && String.IsNullOrEmpty(ad.sub_image_url) == false)
+                                {
+                                    ad.sub_img_path = Config.adImgRoot + "\\" + Ad.GetImgName(ad.sub_image_url);
+                                    url2 = HttpUtil.DownloadImg(ad.sub_image_url, ad.sub_img_path);
+                                }
+                                else
+                                {
+                                    ad.sub_img_path = "";
+                                }
+                                if (url1 && url2)
+                                {
+                                    ad.id = oldad.id;
+                                    //ad.sub_image_url = oldad.sub_image_url;
+                                    AdDao.UpdateAd(ad);
+                                    listAD.Add(ad);
+                                }
                             }
                         }
                     }
@@ -143,27 +147,31 @@ namespace WpfAd.service
                     dm.date_modified = DateTime.Parse(jToken["date_modified"].ToString());
                     dm.img_path = Config.adImgRoot + "\\" + Ad.GetImgName(dm.image_url);
 
-                    Dm oldDm = DmDao.GetDmById(dm.advertisement_id);
-                    if (oldDm == null)//数据库中不存在
+                    DateTime dt = DateTime.Now;
+                    if (dm.puton_time <= dt && dt <= dm.putoff_time) //在上线时间范围内
                     {
-                        if (HttpUtil.DownloadImg(dm.image_url, dm.img_path))
+                        Dm oldDm = DmDao.GetDmById(dm.advertisement_id);
+                        if (oldDm == null)//数据库中不存在
                         {
-                            DmDao.InsertDm(dm);
-                            listDm.Add(dm);
-                        }
-                    }
-                    else //数据库中存在
-                    {
-                        if (oldDm.date_modified != dm.date_modified)//如果需要修改
-                        {
-                            FileInfo fileInfo = new FileInfo(dm.img_path);
-                            if (fileInfo.Exists == false || fileInfo.Length <= 0)
+                            if (HttpUtil.DownloadImg(dm.image_url, dm.img_path))
                             {
-                                if (HttpUtil.DownloadImg(dm.image_url, dm.img_path))
+                                DmDao.InsertDm(dm);
+                                listDm.Add(dm);
+                            }
+                        }
+                        else //数据库中存在
+                        {
+                            if (oldDm.date_modified != dm.date_modified)//如果需要修改
+                            {
+                                FileInfo fileInfo = new FileInfo(dm.img_path);
+                                if (fileInfo.Exists == false || fileInfo.Length <= 0)
                                 {
-                                    dm.id = oldDm.id;
-                                    DmDao.UpdateDm(dm);
-                                    listDm.Add(dm);
+                                    if (HttpUtil.DownloadImg(dm.image_url, dm.img_path))
+                                    {
+                                        dm.id = oldDm.id;
+                                        DmDao.UpdateDm(dm);
+                                        listDm.Add(dm);
+                                    }
                                 }
                             }
                         }

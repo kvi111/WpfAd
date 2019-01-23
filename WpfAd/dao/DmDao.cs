@@ -78,6 +78,7 @@ namespace WpfAd.dao
         {
             try
             {
+                DeleteDmByOutDate(); //先删除过期Dm
                 using (var db = new SQLiteDb())
                 {
                     return db.Dms.ToList().Where(x => x.puton_time <= DateTime.Now && DateTime.Now <= x.putoff_time).OrderBy(x => x.advertisement_id).ToList();
@@ -86,6 +87,26 @@ namespace WpfAd.dao
             catch (Exception ex)
             {
                 log.Error("GetDms error:", ex);
+                return new List<Dm>();
+            }
+        }
+
+        /// <summary>
+        /// 查找过期的dm
+        /// </summary>
+        /// <returns></returns>
+        public static List<Dm> GetDmsByOutDate()
+        {
+            try
+            {
+                using (var db = new SQLiteDb())
+                {
+                    return db.Dms.ToList().Where(x => x.puton_time > DateTime.Now || DateTime.Now > x.putoff_time).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("GetDmsByOutDate error:", ex);
                 return new List<Dm>();
             }
         }
@@ -108,6 +129,39 @@ namespace WpfAd.dao
             {
                 log.Error("GetDmsBycatId error:", ex);
                 return new List<Dm>();
+            }
+        }
+
+        //public static Dm DeleteDmById(long dmId)
+        //{
+        //    using (var db = new SQLiteDb())
+        //    {
+        //        return db.Dms.Remove(db.Dms.FirstOrDefault(x => x.advertisement_id == dmId));
+        //    }
+        //}
+
+        //public static Dm DeleteDmById(Dm dm)
+        //{
+        //    using (var db = new SQLiteDb())
+        //    {
+        //        return db.Dms.Remove(dm);
+        //    }
+        //}
+
+        /// <summary>
+        /// 删除过期的dm
+        /// </summary>
+        /// <returns></returns>
+        public static void DeleteDmByOutDate()
+        {
+            using (var db = new SQLiteDb())
+            {
+                List<Dm> list = GetDmsByOutDate();
+                foreach (Dm dm in list) {
+                    db.Dms.Attach(dm);
+                    db.Dms.Remove(dm);
+                }
+                db.SaveChanges();
             }
         }
     }

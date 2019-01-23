@@ -1,6 +1,7 @@
 ﻿using log4net;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity.Core.Objects;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -80,6 +81,7 @@ namespace WpfAd.dao
         {
             try
             {
+                DeleteAdByOutDate(); //先删除过期广告
                 using (var db = new SQLiteDb())
                 {
                     var ads = db.Ads.ToList().Where(x => x.puton_time <= DateTime.Now && DateTime.Now <= x.putoff_time).OrderBy(x => x.advertisement_id).ToList();
@@ -90,6 +92,45 @@ namespace WpfAd.dao
             {
                 log.Error("GetAds error:", ex);
                 return new List<Ad>();
+            }
+        }
+
+        /// <summary>
+        /// 查找过期的ad
+        /// </summary>
+        /// <returns></returns>
+        public static List<Ad> GetAdsByOutDate()
+        {
+            try
+            {
+                using (var db = new SQLiteDb())
+                {
+                    var ads = db.Ads.ToList().Where(x => x.puton_time > DateTime.Now || DateTime.Now > x.putoff_time).ToList();
+                    return ads;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("GetAdsByOutDate error:", ex);
+                return new List<Ad>();
+            }
+        }
+
+        /// <summary>
+        /// 删除过期的ad
+        /// </summary>
+        /// <returns></returns>
+        public static void DeleteAdByOutDate()
+        {
+            using (var db = new SQLiteDb())
+            {
+                List<Ad> list = GetAdsByOutDate();
+                foreach (Ad ad in list) {
+                    db.Ads.Attach(ad);
+                    db.Ads.Remove(ad);
+                }
+                //db.Ads.RemoveRange(list);
+                db.SaveChanges();
             }
         }
     }
